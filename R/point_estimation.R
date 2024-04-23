@@ -15,9 +15,25 @@ point_estim <- function(framework,
                         transformation,
                         interval,
                         L,
-                        keep_data = FALSE) {
+                        keep_data = FALSE,
+                        optimization_function = c("logLik", "pooled_skewness")
+) {
 
   # Transformation of data -----------------------------------------------------
+
+  optimization_function <- match.arg(optimization_function)
+
+  # pooled_skewness is the optimization criterion in case of a simultaneous use
+  # of weights and data-driven transformations. Lambda is determined based on
+  # the weighted sample data.
+  unweighted <- NULL
+  if (optimization_function == "pooled_skewness") {
+    unweighted <- framework$smp_data
+    framework$smp_data[all.vars(fixed)] <- apply(unweighted, 2, function(x) {
+      if (is.factor(x)) return(x)
+      x * framework$smp_data[[framework$weight]]
+    })
+  }
 
   # Estimating the optimal parameter by optimization
   # Optimal parameter function returns the minimum of the optimization
@@ -29,8 +45,14 @@ point_estim <- function(framework,
     smp_data = framework$smp_data,
     smp_domains = framework$smp_domains,
     transformation = transformation,
+    optimization_function = optimization_function,
     interval = interval
   )
+
+  # if (is.null(unweighted)) {
+  #   framework$smp_data <- unweighted
+  #   rm(unweighted)
+  # }
 
   # Data_transformation function returns transformed data and shift parameter.
   # The function can be found in the script transformation_functions.R
@@ -175,11 +197,11 @@ model_par <- function(framework,
 
       # Domain means of of the dependent variable
       dep_smp <- transformation_par$transformed_data[[
-      as.character(mixed_model$terms[[2]])]][
-        framework$smp_domains_vec == domain
-      ]
+        as.character(mixed_model$terms[[2]])]][
+          framework$smp_domains_vec == domain
+        ]
       weight_smp <- transformation_par$transformed_data[[
-      as.character(framework$weights)]][framework$smp_domains_vec == domain]
+        as.character(framework$weights)]][framework$smp_domains_vec == domain]
       weight_sum[d] <- sum(weight_smp)
 
       indep_smp <- if(length(weight_smp) == 1) {
@@ -223,7 +245,7 @@ model_par <- function(framework,
     rand_eff <- rep(0, length(unique(framework$pop_domains_vec)))
     # random effect for in-sample domains (dist_obs_dom)
     rand_eff[framework$dist_obs_dom] <- gamma_weight * (mean_dep -
-      mean_indep %*% betas)
+                                                          mean_indep %*% betas)
 
 
     return(list(
@@ -247,7 +269,7 @@ gen_model <- function(fixed,
   if (is.null(framework$weights)) {
     # Parameter for calculating variance of new random effect
     gamma <- model_par$sigmau2est / (model_par$sigmau2est +
-      model_par$sigmae2est / framework$n_smp)
+                                       model_par$sigmae2est / framework$n_smp)
     # Variance of new random effect
     sigmav2est <- model_par$sigmau2est * (1 - gamma)
     # Random effect in constant part of y for in-sample households
@@ -343,18 +365,18 @@ monte_carlo <- function(transformation,
       matrix(
         nrow = N_dom_pop_tmp,
         data = unlist(lapply(framework$indicator_list,
-          function(f, threshold) {
-            matrix(
-              nrow = N_dom_pop_tmp,
-              data = unlist(mapply(
-                y = split(population_vector, pop_domains_vec_tmp),
-                pop_weights = split(pop_weights_vec, pop_domains_vec_tmp),
-                f,
-                threshold = framework$threshold
-              )), byrow = TRUE
-            )
-          },
-          threshold = framework$threshold
+                             function(f, threshold) {
+                               matrix(
+                                 nrow = N_dom_pop_tmp,
+                                 data = unlist(mapply(
+                                   y = split(population_vector, pop_domains_vec_tmp),
+                                   pop_weights = split(pop_weights_vec, pop_domains_vec_tmp),
+                                   f,
+                                   threshold = framework$threshold
+                                 )), byrow = TRUE
+                               )
+                             },
+                             threshold = framework$threshold
         ))
       )
   } # End for loop
