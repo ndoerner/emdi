@@ -45,7 +45,7 @@ pooled_skewness <- function(fixed, smp_data, smp_domains, transformation, lambda
     model_REML <- model_REML
   }
   # Extract residuals
-  resid_u <- resid(model_REML, type = "response", level = 0) # Level 1/area level
+  resid_u <- resid(model_REML, type = "response", level = 0) # Level 2/area level;
   resid_e <- resid(model_REML, type = "response", level = 1) # Level 1/individual level\
 
   # Extract variance components

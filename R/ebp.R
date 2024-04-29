@@ -237,6 +237,7 @@ ebp <- function(fixed,
                 L = 50,
                 threshold = NULL,
                 transformation = "box.cox",
+                optimization_function = c("logLik", "pooled_skewness"),
                 interval = "default",
                 MSE = FALSE,
                 B = 50,
@@ -252,17 +253,21 @@ ebp <- function(fixed,
                 pop_weights = NULL,
                 aggregate_to = NULL
                 ) {
-  ebp_check1(
-    fixed = fixed, pop_data = pop_data, pop_domains = pop_domains,
-    smp_data = smp_data, smp_domains = smp_domains, L = L
-  )
+  if (!(transformation %in% c("no", "log")) & !is.null(weights)) {
+    optimization_function <- "pooled_skewness"
+  }
 
-  ebp_check2(
-    threshold = threshold, transformation = transformation,
-    interval = interval, MSE = MSE, boot_type = boot_type, B = B,
-    custom_indicator = custom_indicator, cpus = cpus, seed = seed,
-    na.rm = na.rm, weights = weights, pop_weights = pop_weights
-  )
+  # ebp_check1(
+  #   fixed = fixed, pop_data = pop_data, pop_domains = pop_domains,
+  #   smp_data = smp_data, smp_domains = smp_domains, L = L
+  # )
+
+  # ebp_check2(
+  #   threshold = threshold, transformation = transformation,
+  #   interval = interval, MSE = MSE, boot_type = boot_type, B = B,
+  #   custom_indicator = custom_indicator, cpus = cpus, seed = seed,
+  #   na.rm = na.rm, weights = weights, pop_weights = pop_weights
+  # )
 
   # Save function call ---------------------------------------------------------
 
@@ -305,7 +310,8 @@ ebp <- function(fixed,
     transformation = transformation,
     interval = interval,
     L = L,
-    keep_data = TRUE
+    keep_data = TRUE,
+    optimization_function = optimization_function
   )
 
 

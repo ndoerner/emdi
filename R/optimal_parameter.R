@@ -3,9 +3,10 @@ optimal_parameter <- function(generic_opt,
                               smp_data,
                               smp_domains,
                               transformation,
-                              interval) {
+                              interval,
+                              optimization_function) {
   if (transformation != "no" &&
-    transformation != "log") {
+      transformation != "log") {
     # no lambda -> no estimation -> no optmimization
 
     if (transformation == "box.cox" && any(interval == "default")) {
@@ -29,12 +30,13 @@ optimal_parameter <- function(generic_opt,
 
     # Estimation of optimal lambda parameters
     optimal_parameter <- optimize(generic_opt,
-      fixed          = fixed,
-      smp_data       = smp_data,
-      smp_domains    = smp_domains,
-      transformation = transformation,
-      interval       = interval,
-      maximum        = FALSE
+                                  fixed          = fixed,
+                                  smp_data       = smp_data,
+                                  smp_domains    = smp_domains,
+                                  transformation = transformation,
+                                  optimization_function = optimization_function,
+                                  interval       = interval,
+                                  maximum        = FALSE
     )$minimum
   } else {
     optimal_parameter <- NULL
@@ -55,12 +57,14 @@ generic_opt <- function(lambda,
                         fixed,
                         smp_data,
                         smp_domains,
-                        transformation) {
+                        transformation,
+                        optimization_function = c("logLik", "pooled_skewness")) {
 
 
   # Definition of optimization function for finding the optimal lambda
   # Preperation to easily implement further methods here
-  optimization <- if (TRUE) {
+  optimization_function <- match.arg(optimization_function)
+  optimization <- if (optimization_function == "logLik") {
     reml(
       fixed = fixed,
       smp_data = smp_data,
@@ -68,9 +72,18 @@ generic_opt <- function(lambda,
       transformation = transformation,
       lambda = lambda
     )
+  } else if (optimization_function == "pooled_skewness") {
+    optimization <- pooled_skewness(
+      fixed = fixed
+      , smp_data = smp_data
+      , smp_domains = smp_domains
+      , transformation = transformation
+      , lambda = lambda
+    )
   }
   return(optimization)
 }
+
 
 
 
