@@ -27,13 +27,21 @@ point_estim <- function(framework,
   # of weights and data-driven transformations. Lambda is determined based on
   # the weighted sample data.
   unweighted <- NULL
-  if (optimization_function == "pooled_skewness") {
+  if (optimization_function == "pooled_skewness" && !is.null(weights)) {
     unweighted <- framework$smp_data
-    framework$smp_data[all.vars(fixed)] <- apply(unweighted, 2, function(x) {
-      if (is.factor(x)) return(x)
-      x * framework$smp_data[[framework$weight]]
-    })
+    # framework$smp_data_svy <- survey::svydesign(ids = framework$smp_data[[smp_domains]]
+    #                                             , weights = framework$smp_data[[weights]]
+    #                                             , data = framework$smp_data
+    #                                             , nest = TRUE
+    # )
+    # Provisorisch
+    framework$smp_data_optim <- framework$smp_data
+    framework$smp_data_optim[[weights]] <- round(framework$smp_data_optim[[weights]])
+    framework$smp_data_optim <- tidyr::uncount(framework$smp_data_optim, .data[[weights]])
+  } else {
+    framework$smp_data_optim <- framework$smp_data
   }
+
 
   # Estimating the optimal parameter by optimization
   # Optimal parameter function returns the minimum of the optimization
@@ -42,8 +50,9 @@ point_estim <- function(framework,
   optimal_lambda <- optimal_parameter(
     generic_opt = generic_opt,
     fixed = fixed,
-    smp_data = framework$smp_data,
+    smp_data = framework$smp_data_optim,
     smp_domains = framework$smp_domains,
+    # weights = framework$weights,
     transformation = transformation,
     optimization_function = optimization_function,
     interval = interval
