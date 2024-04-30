@@ -35,6 +35,7 @@ pooled_skewness <- function(fixed, smp_data, smp_domains, transformation, lambda
   )
 
   if (is.null(model_REML)) {
+    return(1e10)
     stop(strwrap(prefix = " ", initial = ""
                  , "The likelihood does not converge. One reason could be that
 								 the interval for the estimation of an optimal transformation
