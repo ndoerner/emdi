@@ -311,6 +311,7 @@ ebp <- function(fixed,
     interval = interval,
     L = L,
     keep_data = TRUE,
+    weights = weights,
     optimization_function = optimization_function
   )
 

@@ -16,6 +16,7 @@ point_estim <- function(framework,
                         interval,
                         L,
                         keep_data = FALSE,
+                        weights,
                         optimization_function = c("logLik", "pooled_skewness")
 ) {
 
