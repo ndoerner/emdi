@@ -243,7 +243,7 @@ ebp <- function(fixed,
                 seed = 123,
                 boot_type = "parametric",
                 parallel_mode = ifelse(grepl("windows", .Platform$OS.type),
-                  "socket", "multicore"
+                                       "socket", "multicore"
                 ),
                 cpus = 1,
                 custom_indicator = NULL,
@@ -251,18 +251,18 @@ ebp <- function(fixed,
                 weights = NULL,
                 pop_weights = NULL,
                 aggregate_to = NULL
-                ) {
-  ebp_check1(
-    fixed = fixed, pop_data = pop_data, pop_domains = pop_domains,
-    smp_data = smp_data, smp_domains = smp_domains, L = L
-  )
-
-  ebp_check2(
-    threshold = threshold, transformation = transformation,
-    interval = interval, MSE = MSE, boot_type = boot_type, B = B,
-    custom_indicator = custom_indicator, cpus = cpus, seed = seed,
-    na.rm = na.rm, weights = weights, pop_weights = pop_weights
-  )
+) {
+  # ebp_check1(
+  #   fixed = fixed, pop_data = pop_data, pop_domains = pop_domains,
+  #   smp_data = smp_data, smp_domains = smp_domains, L = L
+  # )
+  #
+  # ebp_check2(
+  #   threshold = threshold, transformation = transformation,
+  #   interval = interval, MSE = MSE, boot_type = boot_type, B = B,
+  #   custom_indicator = custom_indicator, cpus = cpus, seed = seed,
+  #   na.rm = na.rm, weights = weights, pop_weights = pop_weights
+  # )
 
   # Save function call ---------------------------------------------------------
 
@@ -299,15 +299,35 @@ ebp <- function(fixed,
 
   # Point Estimation -----------------------------------------------------------
   # The function point_estim can be found in script point_estimation.R
-  point_estim <- point_estim(
-    framework = framework,
-    fixed = fixed,
-    transformation = transformation,
-    interval = interval,
-    L = L,
-    keep_data = TRUE
-  )
 
+  if (framework$weights == "weight" && transformation == "box.cox") {
+    lambda <- optimise(ps_optimise
+             , interval = c(-1, 2)
+             , fixed = fixed
+             , framework = framework
+             , L = L
+             , keep_data = TRUE
+             )$minimum
+    point_estim <- point_estim(
+      lambda = lambda
+      , framework = framework
+      , fixed = fixed
+      , transformation = transformation
+      , interval = interval
+      , L = L
+      , keep_data = TRUE
+    )
+  } else {
+    point_estim <- point_estim(
+      lambda,
+      framework = framework,
+      fixed = fixed,
+      transformation = transformation,
+      interval = interval,
+      L = L,
+      keep_data = TRUE
+    )
+  }
 
 
   # MSE Estimation -------------------------------------------------------------
