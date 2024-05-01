@@ -19,18 +19,31 @@ point_estim <- function(framework,
 
   # Transformation of data -----------------------------------------------------
 
-  # Estimating the optimal parameter by optimization
-  # Optimal parameter function returns the minimum of the optimization
-  # functions from generic_opt; the minimum is the optimal lambda.
-  # The function can be found in the script optimal_parameter.R
-  optimal_lambda <- optimal_parameter(
-    generic_opt = generic_opt,
-    fixed = fixed,
-    smp_data = framework$smp_data,
-    smp_domains = framework$smp_domains,
-    transformation = transformation,
-    interval = interval
-  )
+  # if (framework$weights == "weight" && transformation == "box.cox") {
+  #   iv <- switch(interval == "default", c(-1, 2), interval)
+  #   optimal_lambda <- optimise(f = ps_optimise
+  #                              , interval = iv
+  #                              , fixed = fixed
+  #                              , framework = framework
+  #                              , L = L
+  #                              , keep_data = keep_data)$minimum
+  # } else {
+
+    # Estimating the optimal parameter by optimization
+    # Optimal parameter function returns the minimum of the optimization
+    # functions from generic_opt; the minimum is the optimal lambda.
+    # The function can be found in the script optimal_parameter.R
+    optimal_lambda <- optimal_parameter(
+      generic_opt = generic_opt,
+      fixed = fixed,
+      smp_data = framework$smp_data,
+      smp_domains = framework$smp_domains,
+      transformation = transformation,
+      interval = interval
+    )
+  # }
+
+
 
   # Data_transformation function returns transformed data and shift parameter.
   # The function can be found in the script transformation_functions.R
