@@ -6,7 +6,7 @@ ps_optimise <- function(lambda
                         , keep_data = FALSE
 ) {
   point_estim <- point_estim(
-    lambda,
+    lambda = lambda,
     framework = framework,
     fixed = fixed,
     transformation = transformation,
@@ -28,8 +28,8 @@ ps_optimise <- function(lambda
     (sum((x - mean(x))^3) / length(x)) / (sd(x) * (length(x) - 1) / length(x))^3
   }
 
-  skew_u <- skewness(resid_u)
-  skew_e <- skewness(resid_e)
+  skew_u <- skewness(resid)
+  skew_e <- skewness(ranef)
 
   # Pooled skewness
   w * abs(skew_e) + (1 - w) * abs(skew_u)

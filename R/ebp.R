@@ -300,7 +300,7 @@ ebp <- function(fixed,
   # Point Estimation -----------------------------------------------------------
   # The function point_estim can be found in script point_estimation.R
 
-  if (is.null(framework$weights) && transformation == "box.cox") {
+  if (!is.null(framework$weights) && transformation == "box.cox") {
     lambda <- optimise(ps_optimise
              , interval = c(-1, 2)
              , fixed = fixed
@@ -319,7 +319,7 @@ ebp <- function(fixed,
     )
   } else {
     point_estim <- point_estim(
-      lambda,
+      lambda = NULL,
       framework = framework,
       fixed = fixed,
       transformation = transformation,
