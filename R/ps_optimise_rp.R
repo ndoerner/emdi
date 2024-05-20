@@ -10,7 +10,7 @@ ps_optimise_rp <- function(lambda
   dat[y] <- box_cox(y = dat[y], lambda = lambda)$y
   mod <- NULL
   try(
-    mod <- lme(fixed = as.formula(paste0(fixed, "- 1"))
+    mod <- lme(fixed = fixed # as.formula(paste0(fixed, "- 1"))
                , data = dat
                , random = as.formula(paste0("~ 1 | as.factor(", framework$smp_domains, ")"))
                , method = "REML"
@@ -31,8 +31,8 @@ ps_optimise_rp <- function(lambda
     (sum((x - mean(x))^3)/ length(x)) / (sum((x - mean(x))^2) / length(x))^(3/2)
   }
 
-  skew_u <- skewness(resid)
-  skew_e <- skewness(ranef)
+  skew_e <- skewness(resid)
+  skew_u <- skewness(ranef)
 
   # Pooled skewness
   w * abs(skew_e) + (1 - w) * abs(skew_u)
