@@ -250,7 +250,8 @@ ebp <- function(fixed,
                 na.rm = FALSE,
                 weights = NULL,
                 pop_weights = NULL,
-                aggregate_to = NULL
+                aggregate_to = NULL,
+                mode = "REML"
 ) {
   # ebp_check1(
   #   fixed = fixed, pop_data = pop_data, pop_domains = pop_domains,
@@ -300,14 +301,14 @@ ebp <- function(fixed,
   # Point Estimation -----------------------------------------------------------
   # The function point_estim can be found in script point_estimation.R
 
-  if (!is.null(framework$weights) && transformation == "box.cox") {
-    lambda <- optimise(ps_optimise
-             , interval = c(-1, 2)
-             , fixed = fixed
-             , framework = framework
-             , L = L
-             , keep_data = TRUE
-             )$minimum
+  if (mode == "PS" && transformation == "box.cox") {
+    lambda <- optimise(ps_optimise_rp
+                       , interval = c(-1, 2)
+                       , fixed = fixed
+                       , framework = framework
+                       , L = L
+                       , keep_data = TRUE
+    )$minimum
     point_estim <- point_estim(
       lambda = lambda
       , framework = framework
