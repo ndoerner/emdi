@@ -302,13 +302,20 @@ ebp <- function(fixed,
   # The function point_estim can be found in script point_estimation.R
 
   if (mode == "PS" && transformation == "box.cox") {
-    lambda <- optimise(ps_optimise_rp
-                       , interval = c(-1, 2)
-                       , fixed = fixed
-                       , framework = framework
-                       , L = L
-                       , keep_data = TRUE
-    )$minimum
+    # lambda <- optimise(ps_optimise_rp
+    #                    , interval = c(-1, 2)
+    #                    , fixed = fixed
+    #                    , framework = framework
+    #                    , L = L
+    #                    , keep_data = TRUE
+    # )$minimum
+    lambda <- optimal_parameter(
+      generic_opt = generic_opt,
+      fixed = fixed,
+      smp_data = framework$smp_data,
+      smp_domains = framework$smp_domains,
+      transformation = transformation,
+      interval = interval)
     point_estim <- point_estim(
       lambda = lambda
       , framework = framework
