@@ -216,6 +216,10 @@ model_par <- function(framework,
       delta2[d] <- sum(weight_smp^2) / (weight_sum[d]^2)
       gamma_weight[d] <- sigmau2est / (sigmau2est + sigmae2est * delta2[d])
       weight_smp_diag <- diag(weight_smp)
+
+      # diag() creates a matrix based on the value of x if length(x) == 1
+			if (length(weight_smp) == 1) weight_smp_diag <- weight_smp
+      
       dep_var_ast <- dep_smp - gamma_weight[d] * mean_dep[d]
       indep_weight <- t(indep_smp) %*% weight_smp_diag
       indep_var_ast <- indep_smp - matrix(rep(
